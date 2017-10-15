@@ -17,6 +17,7 @@ type SearchParams struct {
 	IsHashtag              bool
 	InChannels             []string
 	FromUsers              []string
+	WithAttachments	       []string
 	AfterDate              string
 	BeforeDate             string
 	OnDate                 string
@@ -63,7 +64,7 @@ func (p *SearchParams) GetOnDateMillis() (int64, int64) {
 	return GetStartOfDayMillis(date, p.TimeZoneOffset), GetEndOfDayMillis(date, p.TimeZoneOffset)
 }
 
-var searchFlags = [...]string{"from", "channel", "in", "before", "after", "on"}
+var searchFlags = [...]string{"from", "channel", "in", "attachment", "file", "before", "after", "on"}
 
 func splitWords(text string) []string {
 	words := []string{}
@@ -163,6 +164,7 @@ func ParseSearchParams(text string, timeZoneOffset int) []*SearchParams {
 
 	inChannels := []string{}
 	fromUsers := []string{}
+	withAttachments := []string{}
 	afterDate := ""
 	beforeDate := ""
 	onDate := ""
@@ -175,6 +177,8 @@ func ParseSearchParams(text string, timeZoneOffset int) []*SearchParams {
 			inChannels = append(inChannels, value)
 		} else if flag == "from" {
 			fromUsers = append(fromUsers, value)
+		} else if flag == "attachment" || flag == "file" {
+			withAttachments = append(withAttachments, value)
 		} else if flag == "after" {
 			afterDate = value
 		} else if flag == "before" {
@@ -192,6 +196,7 @@ func ParseSearchParams(text string, timeZoneOffset int) []*SearchParams {
 			IsHashtag:      false,
 			InChannels:     inChannels,
 			FromUsers:      fromUsers,
+			WithAttachments: withAttachments,
 			AfterDate:      afterDate,
 			BeforeDate:     beforeDate,
 			OnDate:         onDate,
@@ -205,6 +210,7 @@ func ParseSearchParams(text string, timeZoneOffset int) []*SearchParams {
 			IsHashtag:      true,
 			InChannels:     inChannels,
 			FromUsers:      fromUsers,
+			WithAttachments: withAttachments,
 			AfterDate:      afterDate,
 			BeforeDate:     beforeDate,
 			OnDate:         onDate,
@@ -219,6 +225,7 @@ func ParseSearchParams(text string, timeZoneOffset int) []*SearchParams {
 			IsHashtag:      false,
 			InChannels:     inChannels,
 			FromUsers:      fromUsers,
+			WithAttachments: withAttachments,
 			AfterDate:      afterDate,
 			BeforeDate:     beforeDate,
 			OnDate:         onDate,
