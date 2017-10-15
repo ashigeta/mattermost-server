@@ -575,6 +575,7 @@ type SqlSettings struct {
 	Trace                    bool
 	AtRestEncryptKey         string
 	QueryTimeout             *int
+	SearchPostLimit          *int
 }
 
 func (s *SqlSettings) SetDefaults() {
@@ -600,6 +601,10 @@ func (s *SqlSettings) SetDefaults() {
 
 	if s.QueryTimeout == nil {
 		s.QueryTimeout = NewInt(30)
+	}
+
+	if s.SearchPostLimit == nil {
+		s.SearchPostLimit = NewInt(100)
 	}
 }
 
@@ -905,7 +910,6 @@ func (s *SupportSettings) SetDefaults() {
 	if !IsSafeLink(s.TermsOfServiceLink) {
 		*s.TermsOfServiceLink = SUPPORT_SETTINGS_DEFAULT_TERMS_OF_SERVICE_LINK
 	}
-
 	if s.TermsOfServiceLink == nil {
 		s.TermsOfServiceLink = NewString(SUPPORT_SETTINGS_DEFAULT_TERMS_OF_SERVICE_LINK)
 	}
