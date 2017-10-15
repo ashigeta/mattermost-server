@@ -410,6 +410,7 @@ func (a *App) trackConfig() {
 		"data_source_search_replicas":    len(cfg.SqlSettings.DataSourceSearchReplicas),
 		"query_timeout":                  *cfg.SqlSettings.QueryTimeout,
 		"disable_database_search":        *cfg.SqlSettings.DisableDatabaseSearch,
+		"search_post_limit":           	  *cfg.SqlSettings.SearchPostLimit,
 	})
 
 	a.SendDiagnostic(TRACK_CONFIG_LOG, map[string]interface{}{

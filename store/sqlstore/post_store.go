@@ -1206,7 +1206,7 @@ func (s *SqlPostStore) search(teamId string, userId string, params *model.Search
 				CREATEDATE_CLAUSE
 				SEARCH_CLAUSE
 				ORDER BY CreateAt DESC
-			LIMIT 100`
+			LIMIT ` + strconv.FormatInt(int64(*utils.Cfg.SqlSettings.SearchPostLimit), 10)
 
 	inChannelClause, queryParams := s.buildSearchChannelFilterClause(params.InChannels, "InChannel", false, queryParams, channelsByName)
 	searchQuery = strings.Replace(searchQuery, "IN_CHANNEL_FILTER", inChannelClause, 1)
