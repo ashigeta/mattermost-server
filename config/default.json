@@ -132,6 +132,7 @@
         "Trace": false,
         "AtRestEncryptKey": "",
         "QueryTimeout": 30
+        "SearchPostLimit": 100
     },
     "LogSettings": {
         "EnableConsole": true,
