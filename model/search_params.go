@@ -19,6 +19,7 @@ type SearchParams struct {
 	InChannels             []string
 	ExcludedChannels       []string
 	FromUsers              []string
+	WithAttachments	       []string
 	ExcludedUsers          []string
 	AfterDate              string
 	ExcludedAfterDate      string
@@ -105,7 +106,7 @@ func (p *SearchParams) GetExcludedDateMillis() (int64, int64) {
 	return GetStartOfDayMillis(date, p.TimeZoneOffset), GetEndOfDayMillis(date, p.TimeZoneOffset)
 }
 
-var searchFlags = [...]string{"from", "channel", "in", "before", "after", "on"}
+var searchFlags = [...]string{"from", "channel", "in", "attachment", "file", "before", "after", "on"}
 
 type flag struct {
 	name    string
@@ -258,6 +259,7 @@ func ParseSearchParams(text string, timeZoneOffset int) []*SearchParams {
 	excludedChannels := []string{}
 	fromUsers := []string{}
 	excludedUsers := []string{}
+	withAttachments := []string{}
 	afterDate := ""
 	excludedAfterDate := ""
 	beforeDate := ""
@@ -278,6 +280,8 @@ func ParseSearchParams(text string, timeZoneOffset int) []*SearchParams {
 			} else {
 				fromUsers = append(fromUsers, flag.value)
 			}
+		} else if flag.name == "attachment" || flag.name == "file" {
+			withAttachments = append(withAttachments, flag.value)
 		} else if flag.name == "after" {
 			if flag.exclude {
 				excludedAfterDate = flag.value
@@ -309,6 +313,7 @@ func ParseSearchParams(text string, timeZoneOffset int) []*SearchParams {
 			InChannels:         inChannels,
 			ExcludedChannels:   excludedChannels,
 			FromUsers:          fromUsers,
+			WithAttachments: withAttachments,
 			ExcludedUsers:      excludedUsers,
 			AfterDate:          afterDate,
 			ExcludedAfterDate:  excludedAfterDate,
@@ -328,6 +333,7 @@ func ParseSearchParams(text string, timeZoneOffset int) []*SearchParams {
 			InChannels:         inChannels,
 			ExcludedChannels:   excludedChannels,
 			FromUsers:          fromUsers,
+			WithAttachments: withAttachments,
 			ExcludedUsers:      excludedUsers,
 			AfterDate:          afterDate,
 			ExcludedAfterDate:  excludedAfterDate,
@@ -343,6 +349,7 @@ func ParseSearchParams(text string, timeZoneOffset int) []*SearchParams {
 	if len(plainTerms) == 0 && len(hashtagTerms) == 0 &&
 		len(excludedPlainTerms) == 0 && len(excludedHashtagTerms) == 0 &&
 		(len(inChannels) != 0 || len(fromUsers) != 0 ||
+			len(withAttachments) != 0 ||
 			len(excludedChannels) != 0 || len(excludedUsers) != 0 ||
 			len(afterDate) != 0 || len(excludedAfterDate) != 0 ||
 			len(beforeDate) != 0 || len(excludedBeforeDate) != 0 ||
@@ -354,6 +361,7 @@ func ParseSearchParams(text string, timeZoneOffset int) []*SearchParams {
 			InChannels:         inChannels,
 			ExcludedChannels:   excludedChannels,
 			FromUsers:          fromUsers,
+			WithAttachments: withAttachments,
 			ExcludedUsers:      excludedUsers,
 			AfterDate:          afterDate,
 			ExcludedAfterDate:  excludedAfterDate,
