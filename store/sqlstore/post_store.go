@@ -858,7 +858,7 @@ func (s *SqlPostStore) Search(teamId string, userId string, params *model.Search
 				CREATEDATE_CLAUSE
 				SEARCH_CLAUSE
 				ORDER BY CreateAt DESC
-			LIMIT 100`
+			LIMIT ` + strconv.FormatInt(int64(*utils.Cfg.SqlSettings.SearchPostLimit), 10)
 
 	if len(params.InChannels) > 1 {
 		inClause := ":InChannel0"
