@@ -7,6 +7,7 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -1086,6 +1087,14 @@ var specialSearchChar = []string{
 
 func (s *SqlPostStore) buildCreateDateFilterClause(params *model.SearchParams, queryParams map[string]interface{}) (string, map[string]interface{}) {
 	searchQuery := ""
+
+	if len(params.WithAttachments) > 0 {
+		searchQuery = strings.Replace(searchQuery, "ATTACHMENT_FILTER", `
+			AND FileIds != "[]"`, 1)
+	} else {
+		searchQuery = strings.Replace(searchQuery, "ATTACHMENT_FILTER", "", 1)
+	}
+
 	// handle after: before: on: filters
 	if len(params.OnDate) > 0 {
 		onDateStart, onDateEnd := params.GetOnDateMillis()
@@ -1227,6 +1236,7 @@ func (s *SqlPostStore) search(teamId string, userId string, params *model.Search
 	if params.Terms == "" && params.ExcludedTerms == "" &&
 		len(params.InChannels) == 0 && len(params.ExcludedChannels) == 0 &&
 		len(params.FromUsers) == 0 && len(params.ExcludedUsers) == 0 &&
+		len(params.WithAttachments) == 0 &&
 		len(params.OnDate) == 0 && len(params.AfterDate) == 0 && len(params.BeforeDate) == 0 {
 		return list, nil
 	}
@@ -1264,11 +1274,12 @@ func (s *SqlPostStore) search(teamId string, userId string, params *model.Search
 							` + userIdPart + `
 							` + deletedQueryPart + `
 							IN_CHANNEL_FILTER
+							ATTACHMENT_FILTER
 							EXCLUDED_CHANNEL_FILTER)
 				CREATEDATE_CLAUSE
 				SEARCH_CLAUSE
 				ORDER BY CreateAt DESC
-			LIMIT ` + strconv.FormatInt(int64(*utils.Cfg.SqlSettings.SearchPostLimit), 10)
+			LIMIT ` + strconv.FormatInt(int64(s.SqlStore.SearchPostLimit()), 10)
 
 	inChannelClause, queryParams := s.buildSearchChannelFilterClause(params.InChannels, "InChannel", false, queryParams, channelsByName)
 	searchQuery = strings.Replace(searchQuery, "IN_CHANNEL_FILTER", inChannelClause, 1)
@@ -1292,6 +1303,11 @@ func (s *SqlPostStore) search(teamId string, userId string, params *model.Search
 		for _, term := range strings.Split(terms, " ") {
 			termMap[strings.ToUpper(term)] = true
 		}
+	}
+
+	hasActualFileFilter := false
+	if len(params.WithAttachments) > 0 && params.WithAttachments[0] != "*" {
+		hasActualFileFilter = true
 	}
 
 	// these chars have special meaning and can be treated as spaces
@@ -1370,6 +1386,31 @@ func (s *SqlPostStore) search(teamId string, userId string, params *model.Search
 					}
 				}
 				if !exactMatch {
+					continue
+				}
+			}
+			if hasActualFileFilter == true {
+				match := false
+			MATCH:
+				for _, id := range p.FileIds {
+					var fi model.FileInfo
+					err := s.GetReplica().SelectOne(&fi,
+						"SELECT * FROM FileInfo WHERE Id = :Id AND DeleteAt = 0",
+						map[string]interface{}{"Id": id})
+					if err == nil {
+						for _, pattern := range params.WithAttachments {
+							matched, _ := filepath.Match(pattern, fi.Name)
+							if matched {
+								match = true
+								break MATCH
+							}
+						}
+					} else {
+						match = true
+						break
+					}
+				}
+				if !match {
 					continue
 				}
 			}
