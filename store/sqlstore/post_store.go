@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"fmt"
 	"net/http"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -770,7 +771,7 @@ func (s *SqlPostStore) Search(teamId string, userId string, params *model.Search
 		termMap := map[string]bool{}
 		terms := params.Terms
 
-		if terms == "" && len(params.InChannels) == 0 && len(params.FromUsers) == 0 {
+		if terms == "" && len(params.InChannels) == 0 && len(params.FromUsers) == 0 && len(params.WithAttachments) == 0 {
 			result.Data = []*model.Post{}
 			return
 		}
@@ -781,6 +782,11 @@ func (s *SqlPostStore) Search(teamId string, userId string, params *model.Search
 			for _, term := range strings.Split(terms, " ") {
 				termMap[strings.ToUpper(term)] = true
 			}
+		}
+
+		hasActualFileFilter := false
+		if len(params.WithAttachments) > 0 && params.WithAttachments[0] != "*" {
+			hasActualFileFilter = true
 		}
 
 		// these chars have special meaning and can be treated as spaces
@@ -810,7 +816,8 @@ func (s *SqlPostStore) Search(teamId string, userId string, params *model.Search
 							AND (TeamId = :TeamId OR TeamId = '')
 							AND UserId = :UserId
 							AND DeleteAt = 0
-							CHANNEL_FILTER)
+							CHANNEL_FILTER
+                                                        ATTACHMENT_FILTER)
 				SEARCH_CLAUSE
 				ORDER BY CreateAt DESC
 			LIMIT ` + strconv.FormatInt(int64(*utils.Cfg.SqlSettings.SearchPostLimit), 10)
@@ -871,6 +878,13 @@ func (s *SqlPostStore) Search(teamId string, userId string, params *model.Search
 			searchQuery = strings.Replace(searchQuery, "POST_FILTER", "", 1)
 		}
 
+		if len(params.WithAttachments) > 0 {
+			searchQuery = strings.Replace(searchQuery, "ATTACHMENT_FILTER", `
+				AND FileIds != "[]"`, 1)
+		} else {
+			searchQuery = strings.Replace(searchQuery, "ATTACHMENT_FILTER", "", 1)
+		}
+
 		if terms == "" {
 			// we've already confirmed that we have a channel or user to search for
 			searchQuery = strings.Replace(searchQuery, "SEARCH_CLAUSE", "", 1)
@@ -920,6 +934,31 @@ func (s *SqlPostStore) Search(teamId string, userId string, params *model.Search
 						}
 					}
 					if !exactMatch {
+						continue
+					}
+				}
+				if hasActualFileFilter == true {
+					match := false
+				MATCH:
+					for _, id := range p.FileIds {
+						var fi model.FileInfo
+						err := s.GetReplica().SelectOne(&fi,
+							"SELECT * FROM FileInfo WHERE Id = :Id AND DeleteAt = 0",
+							map[string]interface{}{"Id": id})
+						if err == nil {
+							for _, pattern := range params.WithAttachments {
+								matched, _ := filepath.Match(pattern, fi.Name)
+								if matched {
+									match = true
+									break MATCH
+								}
+							}
+						} else {
+							match = true
+							break
+						}
+					}
+					if !match {
 						continue
 					}
 				}
