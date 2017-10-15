@@ -479,6 +479,7 @@ func (ts *TelemetryService) trackConfig() {
 		"data_source_search_replicas":    len(cfg.SqlSettings.DataSourceSearchReplicas),
 		"query_timeout":                  *cfg.SqlSettings.QueryTimeout,
 		"disable_database_search":        *cfg.SqlSettings.DisableDatabaseSearch,
+		"search_post_limit":           	  *cfg.SqlSettings.SearchPostLimit,
 	})
 
 	ts.sendTelemetry(TRACK_CONFIG_LOG, map[string]interface{}{
