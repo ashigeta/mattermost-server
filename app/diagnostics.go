@@ -294,6 +294,7 @@ func (a *App) trackConfig() {
 		"data_source_replicas":        len(cfg.SqlSettings.DataSourceReplicas),
 		"data_source_search_replicas": len(cfg.SqlSettings.DataSourceSearchReplicas),
 		"query_timeout":               *cfg.SqlSettings.QueryTimeout,
+		"search_post_limit":           *cfg.SqlSettings.SearchPostLimit,
 	})
 
 	a.SendDiagnostic(TRACK_CONFIG_LOG, map[string]interface{}{
