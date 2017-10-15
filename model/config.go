@@ -998,6 +998,7 @@ type SqlSettings struct {
 	AtRestEncryptKey            *string  `restricted:"true"`
 	QueryTimeout                *int     `restricted:"true"`
 	DisableDatabaseSearch       *bool    `restricted:"true"`
+	SearchPostLimit             *int     `restricted:"true"`
 }
 
 func (s *SqlSettings) SetDefaults(isUpdate bool) {
@@ -1049,6 +1050,9 @@ func (s *SqlSettings) SetDefaults(isUpdate bool) {
 
 	if s.DisableDatabaseSearch == nil {
 		s.DisableDatabaseSearch = NewBool(false)
+
+	if s.SearchPostLimit == nil {
+		s.SearchPostLimit = NewInt(100)
 	}
 }
 
@@ -1609,7 +1613,6 @@ func (s *SupportSettings) SetDefaults() {
 	if !IsSafeLink(s.TermsOfServiceLink) {
 		*s.TermsOfServiceLink = SUPPORT_SETTINGS_DEFAULT_TERMS_OF_SERVICE_LINK
 	}
-
 	if s.TermsOfServiceLink == nil {
 		s.TermsOfServiceLink = NewString(SUPPORT_SETTINGS_DEFAULT_TERMS_OF_SERVICE_LINK)
 	}
