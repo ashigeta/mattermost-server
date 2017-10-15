@@ -12,14 +12,15 @@ var searchTermPuncStart = regexp.MustCompile(`^[^\pL\d\s#"]+`)
 var searchTermPuncEnd = regexp.MustCompile(`[^\pL\d\s*"]+$`)
 
 type SearchParams struct {
-	Terms      string
-	IsHashtag  bool
-	InChannels []string
-	FromUsers  []string
-	OrTerms    bool
+	Terms           string
+	IsHashtag       bool
+	InChannels      []string
+	FromUsers       []string
+	WithAttachments []string
+	OrTerms         bool
 }
 
-var searchFlags = [...]string{"from", "channel", "in"}
+var searchFlags = [...]string{"from", "channel", "in", "attachment", "file"}
 
 func splitWords(text string) []string {
 	words := []string{}
@@ -119,6 +120,7 @@ func ParseSearchParams(text string) []*SearchParams {
 
 	inChannels := []string{}
 	fromUsers := []string{}
+	withAttachments := []string{}
 
 	for _, flagPair := range flags {
 		flag := flagPair[0]
@@ -128,6 +130,8 @@ func ParseSearchParams(text string) []*SearchParams {
 			inChannels = append(inChannels, value)
 		} else if flag == "from" {
 			fromUsers = append(fromUsers, value)
+		} else if flag == "attachment" || flag == "file" {
+			withAttachments = append(withAttachments, value)
 		}
 	}
 
@@ -135,29 +139,32 @@ func ParseSearchParams(text string) []*SearchParams {
 
 	if len(plainTerms) > 0 {
 		paramsList = append(paramsList, &SearchParams{
-			Terms:      plainTerms,
-			IsHashtag:  false,
-			InChannels: inChannels,
-			FromUsers:  fromUsers,
+			Terms:           plainTerms,
+			IsHashtag:       false,
+			InChannels:      inChannels,
+			FromUsers:       fromUsers,
+			WithAttachments: withAttachments,
 		})
 	}
 
 	if len(hashtagTerms) > 0 {
 		paramsList = append(paramsList, &SearchParams{
-			Terms:      hashtagTerms,
-			IsHashtag:  true,
-			InChannels: inChannels,
-			FromUsers:  fromUsers,
+			Terms:           hashtagTerms,
+			IsHashtag:       true,
+			InChannels:      inChannels,
+			FromUsers:       fromUsers,
+			WithAttachments: withAttachments,
 		})
 	}
 
 	// special case for when no terms are specified but we still have a filter
 	if len(plainTerms) == 0 && len(hashtagTerms) == 0 && (len(inChannels) != 0 || len(fromUsers) != 0) {
 		paramsList = append(paramsList, &SearchParams{
-			Terms:      "",
-			IsHashtag:  false,
-			InChannels: inChannels,
-			FromUsers:  fromUsers,
+			Terms:           "",
+			IsHashtag:       false,
+			InChannels:      inChannels,
+			FromUsers:       fromUsers,
+			WithAttachments: withAttachments,
 		})
 	}
 
