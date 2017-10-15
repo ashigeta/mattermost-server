@@ -317,6 +317,7 @@ func (a *App) trackConfig() {
 		"data_source_search_replicas":            len(cfg.SqlSettings.DataSourceSearchReplicas),
 		"query_timeout":                          *cfg.SqlSettings.QueryTimeout,
 		"enable_public_channels_materialization": *cfg.SqlSettings.EnablePublicChannelsMaterialization,
+		"search_post_limit":           	  	  *cfg.SqlSettings.SearchPostLimit,
 	})
 
 	a.SendDiagnostic(TRACK_CONFIG_LOG, map[string]interface{}{
