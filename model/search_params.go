@@ -349,6 +349,7 @@ func ParseSearchParams(text string, timeZoneOffset int) []*SearchParams {
 	if len(plainTerms) == 0 && len(hashtagTerms) == 0 &&
 		len(excludedPlainTerms) == 0 && len(excludedHashtagTerms) == 0 &&
 		(len(inChannels) != 0 || len(fromUsers) != 0 ||
+			len(withAttachments) != 0 ||
 			len(excludedChannels) != 0 || len(excludedUsers) != 0 ||
 			len(afterDate) != 0 || len(excludedAfterDate) != 0 ||
 			len(beforeDate) != 0 || len(excludedBeforeDate) != 0 ||
