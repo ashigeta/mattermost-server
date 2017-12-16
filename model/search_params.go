@@ -6,6 +6,7 @@ package model
 import (
 	"encoding/json"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -19,6 +20,7 @@ type SearchParams struct {
 	FromUsers       []string
 	WithAttachments []string
 	OrTerms         bool
+	Count           int
 }
 
 func (o *SearchParams) ToJson() string {
@@ -26,7 +28,7 @@ func (o *SearchParams) ToJson() string {
 	return string(b)
 }
 
-var searchFlags = [...]string{"from", "channel", "in", "attachment", "file"}
+var searchFlags = [...]string{"from", "channel", "in", "attachment", "file", "count"}
 
 func splitWords(text string) []string {
 	words := []string{}
@@ -127,6 +129,7 @@ func ParseSearchParams(text string) []*SearchParams {
 	inChannels := []string{}
 	fromUsers := []string{}
 	withAttachments := []string{}
+	count := -1
 
 	for _, flagPair := range flags {
 		flag := flagPair[0]
@@ -138,6 +141,11 @@ func ParseSearchParams(text string) []*SearchParams {
 			fromUsers = append(fromUsers, value)
 		} else if flag == "attachment" || flag == "file" {
 			withAttachments = append(withAttachments, value)
+		} else if flag == "count" {
+			count_, err := strconv.ParseUint(value, 10, 16)
+			if err == nil {
+				count = int(count_)
+			}
 		}
 	}
 
@@ -150,6 +158,7 @@ func ParseSearchParams(text string) []*SearchParams {
 			InChannels:      inChannels,
 			FromUsers:       fromUsers,
 			WithAttachments: withAttachments,
+			Count:           count,
 		})
 	}
 
@@ -160,6 +169,7 @@ func ParseSearchParams(text string) []*SearchParams {
 			InChannels:      inChannels,
 			FromUsers:       fromUsers,
 			WithAttachments: withAttachments,
+			Count:           count,
 		})
 	}
 
@@ -171,6 +181,7 @@ func ParseSearchParams(text string) []*SearchParams {
 			InChannels:      inChannels,
 			FromUsers:       fromUsers,
 			WithAttachments: withAttachments,
+			Count:           count,
 		})
 	}
 
