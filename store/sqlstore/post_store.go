@@ -1114,6 +1114,11 @@ func (s *SqlPostStore) search(teamId string, userId string, params *model.Search
 		userIdPart = ""
 	}
 
+	limit := params.Count;
+	if limit < 0 {
+		limit = s.SqlStore.SearchPostLimit()
+	}
+
 	searchQuery := `
 			SELECT
 				* ,(SELECT COUNT(Posts.Id) FROM Posts WHERE q2.RootId = '' AND Posts.RootId = q2.Id AND Posts.DeleteAt = 0) as ReplyCount
@@ -1140,7 +1145,7 @@ func (s *SqlPostStore) search(teamId string, userId string, params *model.Search
 				CREATEDATE_CLAUSE
 				SEARCH_CLAUSE
 				ORDER BY CreateAt DESC
-			LIMIT ` + strconv.FormatInt(int64(s.SqlStore.SearchPostLimit()), 10)
+			LIMIT ` + strconv.FormatInt(int64(limit), 10)
 
 	inChannelClause, queryParams := s.buildSearchChannelFilterClause(params.InChannels, "InChannel", false, queryParams, channelsByName)
 	searchQuery = strings.Replace(searchQuery, "IN_CHANNEL_FILTER", inChannelClause, 1)
