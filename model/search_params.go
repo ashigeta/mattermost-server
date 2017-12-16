@@ -5,6 +5,7 @@ package model
 
 import (
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -20,6 +21,7 @@ type SearchParams struct {
 	ExcludedChannels       []string
 	FromUsers              []string
 	WithAttachments	       []string
+	Count          	       int
 	ExcludedUsers          []string
 	AfterDate              string
 	ExcludedAfterDate      string
@@ -106,7 +108,7 @@ func (p *SearchParams) GetExcludedDateMillis() (int64, int64) {
 	return GetStartOfDayMillis(date, p.TimeZoneOffset), GetEndOfDayMillis(date, p.TimeZoneOffset)
 }
 
-var searchFlags = [...]string{"from", "channel", "in", "attachment", "file", "before", "after", "on"}
+var searchFlags = [...]string{"from", "channel", "in", "attachment", "file", "count", "before", "after", "on"}
 
 type flag struct {
 	name    string
@@ -260,6 +262,7 @@ func ParseSearchParams(text string, timeZoneOffset int) []*SearchParams {
 	fromUsers := []string{}
 	excludedUsers := []string{}
 	withAttachments := []string{}
+	count := -1
 	afterDate := ""
 	excludedAfterDate := ""
 	beforeDate := ""
@@ -282,6 +285,11 @@ func ParseSearchParams(text string, timeZoneOffset int) []*SearchParams {
 			}
 		} else if flag.name == "attachment" || flag.name == "file" {
 			withAttachments = append(withAttachments, flag.value)
+		} else if flag.name == "count" {
+			count_, err := strconv.ParseUint(flag.value, 10, 16)
+			if err == nil {
+				count = int(count_)
+			}
 		} else if flag.name == "after" {
 			if flag.exclude {
 				excludedAfterDate = flag.value
@@ -313,8 +321,9 @@ func ParseSearchParams(text string, timeZoneOffset int) []*SearchParams {
 			InChannels:         inChannels,
 			ExcludedChannels:   excludedChannels,
 			FromUsers:          fromUsers,
-			WithAttachments: withAttachments,
 			ExcludedUsers:      excludedUsers,
+			WithAttachments: withAttachments,
+			Count:           count,
 			AfterDate:          afterDate,
 			ExcludedAfterDate:  excludedAfterDate,
 			BeforeDate:         beforeDate,
@@ -333,8 +342,9 @@ func ParseSearchParams(text string, timeZoneOffset int) []*SearchParams {
 			InChannels:         inChannels,
 			ExcludedChannels:   excludedChannels,
 			FromUsers:          fromUsers,
-			WithAttachments: withAttachments,
 			ExcludedUsers:      excludedUsers,
+			WithAttachments: withAttachments,
+			Count:           count,
 			AfterDate:          afterDate,
 			ExcludedAfterDate:  excludedAfterDate,
 			BeforeDate:         beforeDate,
@@ -361,8 +371,9 @@ func ParseSearchParams(text string, timeZoneOffset int) []*SearchParams {
 			InChannels:         inChannels,
 			ExcludedChannels:   excludedChannels,
 			FromUsers:          fromUsers,
-			WithAttachments: withAttachments,
 			ExcludedUsers:      excludedUsers,
+			WithAttachments: withAttachments,
+			Count:           count,
 			AfterDate:          afterDate,
 			ExcludedAfterDate:  excludedAfterDate,
 			BeforeDate:         beforeDate,
