@@ -787,6 +787,11 @@ func (s *SqlPostStore) Search(teamId string, userId string, params *model.Search
 			hasActualFileFilter = true
 		}
 
+		limit := params.Count;
+		if limit < 0 {
+			limit = *utils.Cfg.SqlSettings.SearchPostLimit
+		}
+
 		// these chars have special meaning and can be treated as spaces
 		for _, c := range specialSearchChar {
 			terms = strings.Replace(terms, c, " ", -1)
@@ -834,7 +839,7 @@ func (s *SqlPostStore) Search(teamId string, userId string, params *model.Search
 >>>>>>> 6226c75... Add "{attachment,file}:" prefix to search posts with attachment files.
 				SEARCH_CLAUSE
 				ORDER BY CreateAt DESC
-			LIMIT ` + strconv.FormatInt(int64(*utils.Cfg.SqlSettings.SearchPostLimit), 10)
+			LIMIT ` + strconv.FormatInt(int64(limit), 10)
 
 		if len(params.InChannels) > 1 {
 			inClause := ":InChannel0"
