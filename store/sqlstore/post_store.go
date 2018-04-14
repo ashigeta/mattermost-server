@@ -791,7 +791,7 @@ func (s *SqlPostStore) Search(teamId string, userId string, params *model.Search
 
 		limit := params.Count;
 		if limit < 0 {
-			limit = *utils.Cfg.SqlSettings.SearchPostLimit
+			limit = s.SqlStore.SearchPostLimit()
 		}
 
 		// these chars have special meaning and can be treated as spaces
