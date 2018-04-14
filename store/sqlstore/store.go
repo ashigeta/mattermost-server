@@ -41,6 +41,7 @@ import (
 
 type SqlStore interface {
 	DriverName() string
+	SearchPostLimit() int
 	GetCurrentSchemaVersion() string
 	GetMaster() *gorp.DbMap
 	GetSearchReplica() *gorp.DbMap
