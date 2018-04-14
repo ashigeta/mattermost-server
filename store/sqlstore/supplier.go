@@ -278,6 +278,9 @@ func (s *SqlSupplier) initConnection() {
 func (ss *SqlSupplier) DriverName() string {
 	return *ss.settings.DriverName
 }
+func (ss *SqlSupplier) SearchPostLimit() int {
+	return *ss.settings.SearchPostLimit
+}
 
 func (ss *SqlSupplier) GetCurrentSchemaVersion() string {
 	version, _ := ss.GetMaster().SelectStr("SELECT Value FROM Systems WHERE Name='Version'")
