@@ -938,6 +938,7 @@ func (s *SqlPostStore) Search(teamId string, userId string, params *model.Search
 
 				// less than `before date`
 				searchQuery = strings.Replace(searchQuery, "CREATEDATE_CLAUSE", "AND CreateAt <= :BeforeDate ", 1)
+		        }
 		} else {
 			// no create date filters set
 			searchQuery = strings.Replace(searchQuery, "CREATEDATE_CLAUSE", "", 1)
