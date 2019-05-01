@@ -831,14 +831,9 @@ func (s *SqlPostStore) Search(teamId string, userId string, params *model.Search
 							AND (TeamId = :TeamId OR TeamId = '')
 							` + userIdPart + `
 							` + deletedQueryPart + `
-<<<<<<< HEAD
-							CHANNEL_FILTER)
-				CREATEDATE_CLAUSE
-=======
 							CHANNEL_FILTER
 							ATTACHMENT_FILTER)
 				CREATEDATE_CLAUSE							
->>>>>>> 6226c75... Add "{attachment,file}:" prefix to search posts with attachment files.
 				SEARCH_CLAUSE
 				ORDER BY CreateAt DESC
 			LIMIT ` + strconv.FormatInt(int64(limit), 10)
