@@ -1039,6 +1039,7 @@ func (s *SqlSettings) SetDefaults(isUpdate bool) {
 
 	if s.DisableDatabaseSearch == nil {
 		s.DisableDatabaseSearch = NewBool(false)
+	}
 
 	if s.SearchPostLimit == nil {
 		s.SearchPostLimit = NewInt(100)
