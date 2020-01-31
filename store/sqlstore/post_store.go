@@ -802,13 +802,6 @@ var specialSearchChar = []string{
 func (s *SqlPostStore) buildCreateDateFilterClause(params *model.SearchParams, queryParams map[string]interface{}) (string, map[string]interface{}) {
 	searchQuery := ""
 
-	if len(params.WithAttachments) > 0 {
-		searchQuery = strings.Replace(searchQuery, "ATTACHMENT_FILTER", `
-			AND FileIds != "[]"`, 1)
-	} else {
-		searchQuery = strings.Replace(searchQuery, "ATTACHMENT_FILTER", "", 1)
-	}
-
 	// handle after: before: on: filters
 	if len(params.OnDate) > 0 {
 		onDateStart, onDateEnd := params.GetOnDateMillis()
@@ -994,6 +987,13 @@ func (s *SqlPostStore) Search(teamId string, userId string, params *model.Search
 
 	createDateFilterClause, queryParams := s.buildCreateDateFilterClause(params, queryParams)
 	searchQuery = strings.Replace(searchQuery, "CREATEDATE_CLAUSE", createDateFilterClause, 1)
+
+	if len(params.WithAttachments) > 0 {
+		searchQuery = strings.Replace(searchQuery, "ATTACHMENT_FILTER", `
+			AND FileIds != "[]"`, 1)
+	} else {
+		searchQuery = strings.Replace(searchQuery, "ATTACHMENT_FILTER", "", 1)
+	}
 
 	termMap := map[string]bool{}
 	terms := params.Terms
