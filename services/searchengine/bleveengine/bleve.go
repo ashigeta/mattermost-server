@@ -13,7 +13,8 @@ import (
 
 	"github.com/blevesearch/bleve"
 	"github.com/blevesearch/bleve/analysis/analyzer/keyword"
-	"github.com/blevesearch/bleve/analysis/analyzer/standard"
+	//"github.com/blevesearch/bleve/analysis/analyzer/standard"
+	"github.com/blevesearch/bleve/analysis/lang/cjk"
 	"github.com/blevesearch/bleve/mapping"
 
 	"github.com/mattermost/mattermost-server/v5/jobs"
@@ -50,7 +51,8 @@ func init() {
 	keywordMapping.Analyzer = keyword.Name
 
 	standardMapping = bleve.NewTextFieldMapping()
-	standardMapping.Analyzer = standard.Name
+	//standardMapping.Analyzer = standard.Name
+	standardMapping.Analyzer = cjk.AnalyzerName
 
 	dateMapping = bleve.NewNumericFieldMapping()
 }
