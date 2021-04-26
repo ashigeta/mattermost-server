@@ -607,6 +607,17 @@ func (u *User) ClearCustomStatus() {
 	u.Props[UserPropsKeyCustomStatus] = ""
 }
 
+func (u *User) GetCustomStatus() *CustomStatus {
+        u.MakeNonNil()
+        csJSON := u.Props[UserPropsKeyCustomStatus]
+        if csJSON == "" {
+                return nil
+        }
+        var cs *CustomStatus
+        _ = json.NewDecoder(strings.NewReader(csJSON)).Decode(&cs)
+        return cs
+}
+
 func (u *User) GetFullName() string {
 	if u.FirstName != "" && u.LastName != "" {
 		return u.FirstName + " " + u.LastName

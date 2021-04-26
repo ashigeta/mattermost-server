@@ -399,6 +399,15 @@ func (a *App) RemoveCustomStatus(userID string) *model.AppError {
 	return nil
 }
 
+func (a *App) GetCustomStatus(userID string) (*model.CustomStatus, *model.AppError ) {
+	user, err := a.GetUser(userID)
+	if err != nil {
+		return nil, err
+	}
+        cs := user.GetCustomStatus()
+        return cs, nil
+}
+
 func (a *App) addRecentCustomStatus(userID string, status *model.CustomStatus) *model.AppError {
 	var newRCS *model.RecentCustomStatuses
 
@@ -446,4 +455,28 @@ func (a *App) RemoveRecentCustomStatus(userID string, status *model.CustomStatus
 	}
 
 	return nil
+}
+
+func (a *App) SetPrevRecentCustomStatus(userID string) *model.AppError {
+	pref, err := a.GetPreferenceByCategoryAndNameForUser(userID, model.PREFERENCE_CATEGORY_CUSTOM_STATUS, model.PREFERENCE_NAME_RECENT_CUSTOM_STATUSES)
+	if err != nil || pref.Value == "" {
+                return nil
+	}
+	existingRCS := model.RecentCustomStatusesFromJson(strings.NewReader(pref.Value))
+
+        cur, err := a.GetCustomStatus(userID)
+        if err != nil {
+                return err
+        }
+        var idx int
+        if cur == nil {
+                idx = 0
+        } else {
+                idx = 1
+        }
+        if idx >= len(*existingRCS) {
+                return a.RemoveCustomStatus(userID)
+        }
+        prev := (*existingRCS)[idx]
+        return a.SetCustomStatus(userID, &prev)
 }
